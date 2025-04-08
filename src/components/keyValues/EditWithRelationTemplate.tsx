@@ -9,7 +9,6 @@ import {
   SelectAsync,
 } from "@adminjs/design-system";
 import {
-  ApiClient,
   EditPropertyProps,
   flat,
   ParamsType,
@@ -98,10 +97,9 @@ const EditKeyValuePair: React.FC<EditKeyValuePairProps> = (props) => {
   };
 
   useEffect(() => {
-    if (currentKey && !/\D/.test(currentKey)) {
+    if (currentKey) {
       setLoadingRecord((c) => c + 1);
-      const api = new ApiClient();
-      api
+      apiClient
         .recordAction({
           actionName: "show",
           resourceId: property.reference!,
@@ -177,12 +175,10 @@ export const EditWithRelationTemplate: React.FC<
 > = (props) => {
   const { property, record, onChange, resource, Form, relation } = props;
   const { tm, tb } = useTranslation();
-  const selectedValues =
-    unflatten<ParamsType, any>(record.params)[property.path] || [];
+  const selectedValues = unflatten<ParamsType, any>(record.params)[property.path] || [];
   const selectedValuesToOptions = selectedValues
     .map((selectedValue: any) => {
-      const params =
-        record.populated[`${property.path}.${selectedValue}`]?.params;
+      const params = record.populated[`${property.path}.${selectedValue}`]?.params;
       if (!params) return {};
       return {
         [params[relation.modelRef]]: {
@@ -191,14 +187,14 @@ export const EditWithRelationTemplate: React.FC<
               ...object,
               [prop]: params[prop],
             }),
-            {},
+            {}
           ),
         },
       };
     })
     .reduce((acc: any, val: any) => ({ ...acc, ...val }), {});
   const [objectValue, setObjectValue] = useState<Record<string, any>>(
-    selectedValuesToOptions ?? {},
+    selectedValuesToOptions ?? {}
   );
 
   const handleKeyChange = (oldKey: string, newKey: string) => {
@@ -249,16 +245,13 @@ export const EditWithRelationTemplate: React.FC<
       Object.entries(objectValue).map(([key, value]) => ({
         ...value,
         id: key,
-      })),
+      }))
     );
   }, [objectValue]);
 
   const error = record.errors?.[property.path];
   if (property.description === undefined) {
-    property.description = tm(
-      "keyValuePropertyDefaultDescription",
-      resource.id,
-    );
+    property.description = tm("keyValuePropertyDefaultDescription", resource.id);
   }
 
   return (

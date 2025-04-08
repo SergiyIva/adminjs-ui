@@ -5,11 +5,7 @@ import type { AxiosResponse } from "axios";
 
 import { LineChartComponent } from "./Linechart.js";
 import { Periods } from "./Periods.js";
-import {
-  getMockData,
-  prepareData,
-  prepareDataWithDelta,
-} from "./utils/getDataForCharts.js";
+import { getMockData, prepareData, prepareDataWithDelta } from "./utils/getDataForCharts.js";
 import { DateRange } from "./DateRange.js";
 import { Steps } from "./Steps.js";
 import { dateToEpoch } from "./utils/dateToEpoch.js";
@@ -56,7 +52,7 @@ const getParamsFromOptions = (options: WithOption) =>
       };
       return acc;
     },
-    {} as Record<string, ParamValue<string>>,
+    {} as Record<string, ParamValue<string>>
   );
 
 export const MultiChartWrapper: FC<ChartWrapperProps> = ({
@@ -77,17 +73,10 @@ export const MultiChartWrapper: FC<ChartWrapperProps> = ({
   };
   const [period, setPeriod] = useState(30);
   const [params, setParams] = useState<Params>(initParams);
-  const [dateFrom, setDateFrom] = useState(
-    subDays(new Date(dateToEpoch(new Date())), period),
-  );
+  const [dateFrom, setDateFrom] = useState(subDays(new Date(dateToEpoch(new Date())), period));
   const [dateTo, setDateTo] = useState(new Date());
   const [data, setData] = useState<AggregationDataType[]>(
-    getMockData(
-      period,
-      params.step.id,
-      new Date(),
-      keys,
-    ) as AggregationDataType[],
+    getMockData(period, params.step.id, new Date(), keys) as AggregationDataType[]
   );
   const [delta, setDelta] = useState<string>();
   const [dKeys, setDKeys] = useState<string[] | undefined>();
@@ -125,31 +114,22 @@ export const MultiChartWrapper: FC<ChartWrapperProps> = ({
           type,
           ...Object.keys(params).reduce(
             (acc, val) => ({ ...acc, [val]: params[val as keyof Params]!.id }),
-            {},
+            {}
           ),
         },
       })
       .then((response) => {
-        const args = [
-          differenceInDays(dateTo, dateFrom),
-          params.step.id,
-          dateTo,
-        ] as const;
+        const args = [differenceInDays(dateTo, dateFrom), params.step.id, dateTo] as const;
         const currentKeys = dynamicKeys
-          ? getDynamicKeys(
-              (response.data as [AggregationDataType[], number])[0],
-            )
+          ? getDynamicKeys((response.data as [AggregationDataType[], number])[0])
           : keys;
         const [data, delta] =
           keys.length === 2 && !dynamicKeys
-            ? prepareData(
-                response as AxiosResponse<AggregationDataType[][]>,
-                ...args,
-              )
+            ? prepareData(response as AxiosResponse<AggregationDataType[][]>, ...args)
             : prepareDataWithDelta(
                 response.data as [AggregationDataType[], number],
                 ...args,
-                currentKeys,
+                currentKeys
               );
         if (dynamicKeys) {
           const keysForSet =
@@ -184,21 +164,21 @@ export const MultiChartWrapper: FC<ChartWrapperProps> = ({
         <Box flex>
           {Object.keys(params)
             .filter((k) => k !== "step")
-            .map((k) =>
-              additionalOptions[k].component({
-                type: params[k].isLabel ? params[k].id : undefined,
-                setType: (type: string) =>
-                  setParams({
-                    ...params,
-                    [k]: { id: type, isLabel: true },
-                  }),
-              }),
-            )}
+            .map((k) => (
+              <React.Fragment key={k}>
+                {additionalOptions[k].component({
+                  type: params[k].isLabel ? params[k].id : undefined,
+                  setType: (type: string) =>
+                    setParams({
+                      ...params,
+                      [k]: { id: type, isLabel: true },
+                    }),
+                })}
+              </React.Fragment>
+            ))}
           <Steps
             step={params.step.isLabel ? params.step.id : undefined}
-            setStep={(step: Step) =>
-              setParams({ ...params, step: { id: step, isLabel: true } })
-            }
+            setStep={(step: Step) => setParams({ ...params, step: { id: step, isLabel: true } })}
           />
           <Periods setPeriod={setPeriod} period={period} />
         </Box>
