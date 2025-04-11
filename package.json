@@ -1,6 +1,6 @@
 {
   "name": "@sergiyiva/adminjs-ui",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "UiSystem for AdminJS",
   "type": "module",
   "exports": {

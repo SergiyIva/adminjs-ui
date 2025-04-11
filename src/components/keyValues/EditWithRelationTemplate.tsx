@@ -45,7 +45,7 @@ export type Relation = {
   properties: string[];
 };
 
-const MyForm = styled(FormGroup)`
+export const MyForm = styled(FormGroup)`
   label {
     display: none;
   }
